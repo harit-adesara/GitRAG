@@ -44,7 +44,7 @@ router.route("/me").get(verifyJWT, getCurrentUser); //done
 
 router.route("/logout").post(verifyJWT, logOut); //done
 
-router.route("/change-password").post(changePassword); // done
+router.route("/change-password").post(verifyJWT, changePassword); // done
 
 router.route(`/verify/:verificationToken`).get(verifyEmail); // done
 
