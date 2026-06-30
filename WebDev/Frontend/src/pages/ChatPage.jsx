@@ -30,7 +30,7 @@ export default function ChatPage() {
       setInitialLoading(true);
 
       const res = await axiosInstance.get(
-        `http://localhost:3000/gitrag/chat-data?chatId=${chatId}`,
+        `https://gitrag-awh4.onrender.com/gitrag/chat-data?chatId=${chatId}`,
         {
           withCredentials: true,
         },
@@ -70,7 +70,7 @@ export default function ChatPage() {
 
     try {
       const res = await axiosInstance.post(
-        "http://localhost:3000/gitrag/send-msg",
+        "https://gitrag-awh4.onrender.com/gitrag/send-msg",
         {
           chatId,
           repoId,

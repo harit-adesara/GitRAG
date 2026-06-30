@@ -28,7 +28,7 @@ const ForgetPassword = () => {
 
     try {
       await axios.post(
-        "http://localhost:3000/gitrag/forget-password",
+        "https://gitrag-awh4.onrender.com/gitrag/forget-password",
         { email },
         { withCredentials: true },
       );

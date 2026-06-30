@@ -11,9 +11,12 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     try {
-      const res = await axiosInstance.get("http://localhost:3000/gitrag/me", {
-        withCredentials: true,
-      });
+      const res = await axiosInstance.get(
+        "https://gitrag-awh4.onrender.com/gitrag/me",
+        {
+          withCredentials: true,
+        },
+      );
 
       setUser(res.data.data);
     } catch (err) {

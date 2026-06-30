@@ -61,7 +61,7 @@ const Register = () => {
 
     try {
       await axios.post(
-        "http://localhost:3000/gitrag/register",
+        "https://gitrag-awh4.onrender.com/gitrag/register",
         { email, password, username, name },
         { withCredentials: true },
       );

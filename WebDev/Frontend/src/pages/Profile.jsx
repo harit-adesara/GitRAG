@@ -19,9 +19,12 @@ const Profile = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axiosInstance.get("http://localhost:3000/gitrag/me", {
-          withCredentials: true,
-        });
+        const res = await axiosInstance.get(
+          "https://gitrag-awh4.onrender.com/gitrag/me",
+          {
+            withCredentials: true,
+          },
+        );
 
         setUser(res.data.data);
       } catch (err) {
@@ -55,7 +58,7 @@ const Profile = () => {
 
     try {
       await axiosInstance.post(
-        "http://localhost:3000/gitrag/change-password",
+        "https://gitrag-awh4.onrender.com/gitrag/change-password",
         {
           oldPassword,
           newPassword,
@@ -83,7 +86,7 @@ const Profile = () => {
 
     try {
       await axiosInstance.post(
-        "http://localhost:3000/gitrag/oath-set-password",
+        "https://gitrag-awh4.onrender.com/gitrag/oath-set-password",
         {
           password: addPassword,
         },

@@ -41,7 +41,7 @@ const ResetPassword = () => {
       setLoading(true);
 
       const res = await axios.post(
-        `http://localhost:3000/gitrag/reset-password/${resetToken}`,
+        `https://gitrag-awh4.onrender.com/gitrag/reset-password/${resetToken}`,
         { newPassword: form.password },
       );
 

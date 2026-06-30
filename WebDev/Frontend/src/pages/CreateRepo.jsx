@@ -136,7 +136,7 @@ const CreateRepo = () => {
 
     try {
       await axiosInstance.post(
-        "http://localhost:3000/gitrag/create-repo",
+        "https://gitrag-awh4.onrender.com/gitrag/create-repo",
         { url: cloneUrl, name: alias },
         { withCredentials: true },
       );

@@ -21,7 +21,7 @@ export const sendMsg = asyncHandler(async (req, res) => {
       .select("role content");
 
     // call Python RAG service
-    const result = await axios.post("http://127.0.0.1:8000/message", {
+    const result = await axios.post("https://gitrag-1.onrender.com/message", {
       mongo_id: repoId,
       query: content,
       history: history,

@@ -15,7 +15,7 @@ const VerifyEmail = () => {
       hasCalled.current = true;
       try {
         await axios.get(
-          `http://localhost:3000/gitrag/verify/${verificationToken}`,
+          `https://gitrag-awh4.onrender.com/gitrag/verify/${verificationToken}`,
         );
         setStatus("success");
       } catch {

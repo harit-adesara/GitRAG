@@ -28,7 +28,7 @@ const ResendEmail = () => {
 
     try {
       await axios.post(
-        "http://localhost:3000/gitrag/resend-register-email",
+        "https://gitrag-awh4.onrender.com/gitrag/resend-register-email",
         { email },
         { withCredentials: true },
       );

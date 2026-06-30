@@ -61,10 +61,13 @@ export const createRepo = asyncHandler(async (req, res) => {
     await session.commitTransaction();
     session.endSession();
 
-    const result = await axios.post("http://127.0.0.1:8000/initialize-repo", {
-      repo_url: url,
-      mongo_id: repo[0]._id,
-    });
+    const result = await axios.post(
+      "https://gitrag-1.onrender.com/initialize-repo",
+      {
+        repo_url: url,
+        mongo_id: repo[0]._id,
+      },
+    );
 
     return res
       .status(200)
@@ -178,7 +181,7 @@ export const reclone = asyncHandler(async (req, res) => {
     //   `https://api.github.com/repos/${repo.url.replace("https://github.com/", "")}`,
     // );
 
-    const result = await axios.post("http://127.0.0.1:8000/pull-repo", {
+    const result = await axios.post("https://gitrag-1.onrender.com/pull-repo", {
       repo_url: repo.url,
       mongo_id: repo._id,
     });
@@ -215,9 +218,12 @@ export const deleteRepo = asyncHandler(async (req, res) => {
     updated.isDeleted = true;
     await updated.save({ validateBeforeSave: true });
 
-    const result = await axios.post("http://127.0.0.1:8000/delete-repo", {
-      mongo_id: updated._id,
-    });
+    const result = await axios.post(
+      "https://gitrag-1.onrender.com/delete-repo",
+      {
+        mongo_id: updated._id,
+      },
+    );
 
     return res.status(200).json(new ApiResponse(200, {}, "Repo Deleted"));
   } catch (error) {

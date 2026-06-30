@@ -29,7 +29,7 @@ const Login = () => {
 
     try {
       const result = await axios.post(
-        "http://localhost:3000/gitrag/login",
+        "https://gitrag-awh4.onrender.com/gitrag/login",
         {
           email,
           password,

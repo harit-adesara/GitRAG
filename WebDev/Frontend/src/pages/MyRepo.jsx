@@ -232,7 +232,7 @@ const MyRepos = () => {
       setDeletingId(repoId);
 
       await axiosInstance.delete(
-        `http://localhost:3000/gitrag/delete-repo?repoId=${repoId}`,
+        `https://gitrag-awh4.onrender.com/gitrag/delete-repo?repoId=${repoId}`,
         {
           withCredentials: true,
         },
@@ -250,7 +250,7 @@ const MyRepos = () => {
     const fetchRepos = async () => {
       try {
         const res = await axiosInstance.get(
-          "http://localhost:3000/gitrag/get-repos",
+          "https://gitrag-awh4.onrender.com/gitrag/get-repos",
           {
             withCredentials: true,
           },
@@ -274,7 +274,7 @@ const MyRepos = () => {
 
     try {
       await axiosInstance.post(
-        `http://localhost:3000/gitrag/pull-repo?repoId=${repo._id}`,
+        `https://gitrag-awh4.onrender.com/gitrag/pull-repo?repoId=${repo._id}`,
         {},
         { withCredentials: true },
       );

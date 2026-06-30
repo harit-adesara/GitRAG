@@ -16,7 +16,7 @@ export default function ChatList() {
       setLoading(true);
 
       const res = await axiosInstance.get(
-        `http://localhost:3000/gitrag/get-chats?repoId=${repoId}`,
+        `https://gitrag-awh4.onrender.com/gitrag/get-chats?repoId=${repoId}`,
         {
           withCredentials: true,
         },
@@ -39,7 +39,7 @@ export default function ChatList() {
       setCreating(true);
 
       const res = await axiosInstance.post(
-        `http://localhost:3000/gitrag/create-chat?repoId=${repoId}`,
+        `https://gitrag-awh4.onrender.com/gitrag/create-chat?repoId=${repoId}`,
         {},
         {
           withCredentials: true,

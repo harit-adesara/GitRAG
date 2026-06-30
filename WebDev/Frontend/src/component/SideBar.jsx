@@ -94,7 +94,7 @@ const Sidebar = () => {
   const handleLogout = async () => {
     try {
       await axiosInstance.post(
-        "http://localhost:3000/gitrag/logout",
+        "https://gitrag-awh4.onrender.com/gitrag/logout",
         {},
         { withCredentials: true },
       );
