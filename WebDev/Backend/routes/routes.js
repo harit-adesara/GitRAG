@@ -64,6 +64,6 @@ router.route("/get-chats").get(verifyJWT, getChats); // done
 
 router.route("/pull-repo").get(verifyJWT, reclone); // done
 
-router.route("delete-repo").get(verifyJWT, deleteRepo);
+router.route("/delete-repo").get(verifyJWT, deleteRepo);
 
 export { router };
