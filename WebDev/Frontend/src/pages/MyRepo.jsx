@@ -113,7 +113,7 @@ const ConfirmRecloneModal = ({ repoName, onConfirm, onCancel }) => (
   </div>
 );
 
-const RepoCard = ({ repo, onReclone, recloning, deleting }) => {
+const RepoCard = ({ repo, onReclone, onDelete, recloning, deleting }) => {
   const navigate = useNavigate();
 
   return (
