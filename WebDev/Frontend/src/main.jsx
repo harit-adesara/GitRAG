@@ -8,7 +8,7 @@ import {
   RouterProvider,
 } from "react-router-dom";
 
-import Login from "./pages/login.jsx";
+import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import ResendEmail from "./pages/ResendEmail.jsx";
 import ForgetPassword from "./pages/ForgetPassword.jsx";
