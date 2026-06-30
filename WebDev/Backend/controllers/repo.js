@@ -8,101 +8,86 @@ import axios from "axios";
 
 export const createRepo = asyncHandler(async (req, res) => {
   const session = await mongoose.startSession();
+
   try {
     session.startTransaction();
 
-    // here clone repo into ai python serviece and also do embedding and after that if everything fine then return response
-
     const { name, url } = req.body;
 
-    if (
-      !name ||
-      name.trim() === "" ||
-      !url ||
-      url.trim() === "" ||
-      !url.startsWith("https://github.com/")
-    ) {
-      throw new ApiError(404, "Name and Url is required");
+    if (!name || !url || !url.startsWith("https://github.com/")) {
+      throw new ApiError(400, "Name and valid URL required");
     }
 
-    const exists = await Repo.findOne({ url, userId: req.user._id });
+    let repo = await Repo.findOne({
+      url,
+      userId: req.user._id,
+    }).session(session);
 
-    if (exists) {
-      exists.isDeleted = true;
-      await exists.save({ validateBeforeSave: true });
+    let chat;
 
-      await session.commitTransaction();
-      session.endSession();
-
-      const result = await axios.post(
-        "https://gitrag-1.onrender.com/initialize-repo",
-        {
-          repo_url: url,
-          mongo_id: exists._id,
-        },
+    // CASE 1: Repo exists
+    if (repo) {
+      // revive if deleted
+      if (repo.isDeleted) {
+        repo.isDeleted = false;
+        repo.name = name;
+        await repo.save({ session });
+      }
+    } else {
+      // CASE 2: new repo
+      repo = await Repo.create(
+        [
+          {
+            name,
+            url,
+            userId: req.user._id,
+            isDeleted: false,
+          },
+        ],
+        { session },
       );
 
-      return res
-        .status(200)
-        .json(
-          new ApiResponse(200, { repo: repo[0] }, "Repo created successfully"),
-        );
+      repo = repo[0];
+
+      chat = await Chat.create(
+        [
+          {
+            repoId: repo._id,
+            userId: req.user._id,
+          },
+        ],
+        { session },
+      );
+
+      chat = chat[0];
     }
-
-    // await axios.get(
-    //   `https://api.github.com/repos/${url.replace("https://github.com/", "")}`,
-    // );
-
-    const repo = await Repo.create(
-      [
-        {
-          name,
-          url,
-          userId: req.user._id,
-        },
-      ],
-      {
-        session,
-      },
-    );
-
-    const chat = await Chat.create(
-      [
-        {
-          repoId: repo[0]._id,
-          userId: req.user._id,
-        },
-      ],
-      { session },
-    );
 
     await session.commitTransaction();
     session.endSession();
 
-    const result = await axios.post(
-      "https://gitrag-1.onrender.com/initialize-repo",
-      {
-        repo_url: url,
-        mongo_id: repo[0]._id,
-      },
-    );
+    // IMPORTANT: call fastapi AFTER commit
+    await axios.post("https://gitrag-1.onrender.com/initialize-repo", {
+      repo_url: url,
+      mongo_id: repo._id,
+    });
 
-    return res
-      .status(200)
-      .json(
-        new ApiResponse(
-          200,
-          { repo: repo[0], chat: chat[0] },
-          "Repo created successfully",
-        ),
-      );
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          repo,
+          chat: chat || null,
+        },
+        repo.isDeleted ? "Repo revived" : "Repo created",
+      ),
+    );
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
 
     throw new ApiError(
       error.statusCode || 500,
-      error.message || "Error while registring error",
+      error.message || "Error creating repo",
     );
   }
 });
