@@ -9,7 +9,6 @@ const RepoSchema = new Schema(
     url: {
       type: String,
       required: true,
-      unique: true,
     },
     userId: {
       type: mongoose.Schema.ObjectId,
@@ -27,5 +26,7 @@ const RepoSchema = new Schema(
 );
 
 RepoSchema.index({ userId: 1 });
+
+RepoSchema.index({ url: 1 });
 
 export const Repo = mongoose.model("Repo", RepoSchema);

@@ -25,10 +25,28 @@ export const createRepo = asyncHandler(async (req, res) => {
       throw new ApiError(404, "Name and Url is required");
     }
 
-    const exists = await Repo.findOne({ url });
+    const exists = await Repo.findOne({ url, userId: req.user._id });
 
     if (exists) {
-      throw new ApiError(404, "Repo already exists");
+      exists.isDeleted = true;
+      await exists.save({ validateBeforeSave: true });
+
+      await session.commitTransaction();
+      session.endSession();
+
+      const result = await axios.post(
+        "https://gitrag-1.onrender.com/initialize-repo",
+        {
+          repo_url: url,
+          mongo_id: exists._id,
+        },
+      );
+
+      return res
+        .status(200)
+        .json(
+          new ApiResponse(200, { repo: repo[0] }, "Repo created successfully"),
+        );
     }
 
     // await axios.get(
