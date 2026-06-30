@@ -21,11 +21,15 @@ export const sendMsg = asyncHandler(async (req, res) => {
       .select("role content");
 
     // call Python RAG service
+
+    console.log("start send msg");
     const result = await axios.post("https://gitrag-1.onrender.com/message", {
       mongo_id: repoId,
       query: content,
       history: history,
     });
+
+    console.log("end send msg");
 
     // save BOTH messages properly
     const userMsg = await Message.create({

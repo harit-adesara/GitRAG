@@ -66,10 +66,12 @@ export const createRepo = asyncHandler(async (req, res) => {
     session.endSession();
 
     // IMPORTANT: call fastapi AFTER commit
+    console.log("start create");
     await axios.post("https://gitrag-1.onrender.com/initialize-repo", {
       repo_url: url,
       mongo_id: repo._id,
     });
+    console.log("end create");
 
     return res.status(200).json(
       new ApiResponse(
@@ -184,10 +186,14 @@ export const reclone = asyncHandler(async (req, res) => {
     //   `https://api.github.com/repos/${repo.url.replace("https://github.com/", "")}`,
     // );
 
+    console.log("start reclone");
+
     const result = await axios.post("https://gitrag-1.onrender.com/pull-repo", {
       repo_url: repo.url,
       mongo_id: repo._id,
     });
+
+    console.log("end reclone");
 
     return res
       .status(200)
@@ -221,12 +227,16 @@ export const deleteRepo = asyncHandler(async (req, res) => {
     updated.isDeleted = true;
     await updated.save({ validateBeforeSave: true });
 
+    console.log("start delete");
+
     const result = await axios.post(
       "https://gitrag-1.onrender.com/delete-repo",
       {
         mongo_id: updated._id,
       },
     );
+
+    console.log("end delete");
 
     return res.status(200).json(new ApiResponse(200, {}, "Repo Deleted"));
   } catch (error) {
