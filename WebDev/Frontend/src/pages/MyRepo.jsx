@@ -208,7 +208,7 @@ const RepoCard = ({ repo, onReclone, recloning, deleting }) => {
         </button>
 
         <button
-          onClick={() => handleDelete(repo._id)}
+          onClick={() => onDelete(repo._id)}
           disabled={deleting}
           className="flex items-center gap-2 px-3 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition disabled:opacity-40"
         >
@@ -360,6 +360,7 @@ const MyRepos = () => {
                 key={repo._id}
                 repo={repo}
                 onReclone={(r) => setConfirmRepo(r)}
+                onDelete={handleDelete}
                 recloning={recloningId === repo._id}
                 deleting={deletingId === repo._id}
               />
