@@ -47,10 +47,7 @@ const router = createBrowserRouter(
         <Route path="/resend-verification" element={<ResendEmail />} />
         <Route path="/forget-password" element={<ForgetPassword />} />
         <Route path="/reset-password/:resetToken" element={<ResetPassword />} />
-        <Route
-          path="/verify-email/:verificationToken"
-          element={<VerifyEmail />}
-        />
+        <Route path="/verify/:verificationToken" element={<VerifyEmail />} />
       </Route>
     </>,
   ),

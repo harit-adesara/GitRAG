@@ -142,7 +142,7 @@ const registerUser = asyncHandler(async (req, res) => {
     subject: "Verify your account",
     mailgenContent: registerEmail(
       user.name,
-      `https://real-time-code-editor-vercodex.vercel.app/verify/${unHashedToken}`,
+      `https://git-rag-omega.vercel.app/verify/${unHashedToken}`,
     ),
   });
 
@@ -278,7 +278,7 @@ const forgotPasswordRequest = asyncHandler(async (req, res) => {
     subject: "Password reset request",
     mailgenContent: forgotPasswordMailgenContent(
       user.name,
-      `https://real-time-code-editor-vercodex.vercel.app/reset-password/${unHashedToken}`,
+      `https://git-rag-omega.vercel.app/reset-password/${unHashedToken}`,
     ),
   });
 
@@ -373,7 +373,7 @@ const resendRegisterMail = asyncHandler(async (req, res) => {
     subject: "Verify your account",
     mailgenContent: registerEmail(
       user.name,
-      `https://real-time-code-editor-vercodex.vercel.app/verify/${unHashedToken}`,
+      `https://git-rag-omega.vercel.app/verify/${unHashedToken}`,
     ),
   });
 
