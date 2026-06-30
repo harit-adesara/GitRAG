@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 import Header from "../component/Header.jsx";
-import Sidebar from "../component/Sidebar.jsx";
+import Sidebar from "../component/SideBar.jsx";
 import Footer from "../component/Footer.jsx";
 import { useContext } from "react";
 
