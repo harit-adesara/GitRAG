@@ -157,7 +157,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://git-rag-omega.vercel.app"],     
+    allow_origins=["https://git-rag-omega.vercel.app","https://gitrag-awh4.onrender.com"],     
     allow_credentials=True,
     allow_methods=["*"],       
     allow_headers=["*"],
