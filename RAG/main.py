@@ -259,8 +259,8 @@ def message(payload: MessageRequest):
             RULES:
             - Use ONLY the provided repository files
             - Keep answers under 300 words unless the user asks for detail
+            - Give all the answer based on FILES and CHAT HISTORY do not give any answer yourself and do not give any random answer
             - Use short inline code (backticks) only for function/variable names
-            - Do NOT paste full code blocks unless the user explicitly asks
             - If nothing relevant exists, say "Not found in repository"
             -If you only have partial code (e.g. a function is cut off), explicitly say 
             "I only have a partial snippet of this — the chunk may be incomplete" 
