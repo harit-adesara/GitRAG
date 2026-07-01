@@ -70,9 +70,8 @@ const ConfirmModal = ({ onConfirm, onCancel }) => (
           margin: "0 0 1.5rem",
         }}
       >
-        This will clone and index the repository into GitRag. It can take up to{" "}
-        <span style={{ color: "#c4b5fd" }}>2 minutes</span> depending on the
-        repo size. Please don't close this tab.
+        This will clone and index the repository into GitRag. It can take time
+        depending on the repo size. Please don't close this tab.
       </p>
 
       <div style={{ display: "flex", gap: "0.75rem" }}>
@@ -183,7 +182,8 @@ const CreateRepo = () => {
             Cloning repository…
           </p>
           <p style={{ color: "#6a6a78", fontSize: "13px" }}>
-            This may take up to 2 minutes
+            This may take time depending on the repository size. Please don't
+            close this tab.
           </p>
           <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
         </div>

@@ -46,6 +46,9 @@ def build_rag_index(repo_url: str, MongoId: str):
         docs = loader.load()
         print("Load:", time.time() - start)
 
+        if not docs:
+            raise HTTPException(status_code=400, detail="No matching files found in repo")
+
         for doc in docs:
             file_type = doc.metadata.get("file_type")
             doc.metadata["MongoId"] = MongoId
@@ -75,9 +78,18 @@ def build_rag_index(repo_url: str, MongoId: str):
 
         print("Chunk:", time.time() - start)
 
-        start = time.time()
-        vectorstore.add_documents(all_chunks)
-        print("Upload:", time.time() - start)
+        BATCH_SIZE = 20       # ~20 chunks × ~2500 tokens = ~50k tokens per batch
+        DELAY_SECONDS = 65    # wait 65s between batches so limit resets
+
+        for i in range(0, len(all_chunks), BATCH_SIZE):
+            batch = all_chunks[i : i + BATCH_SIZE]
+            print(f"Uploading batch {i // BATCH_SIZE + 1} / {(len(all_chunks) + BATCH_SIZE - 1) // BATCH_SIZE} ({len(batch)} chunks)")
+            vectorstore.add_documents(batch)
+
+            # only sleep if there are more batches remaining
+            if i + BATCH_SIZE < len(all_chunks):
+                print(f"Sleeping {DELAY_SECONDS}s to respect Jina rate limit...")
+                time.sleep(DELAY_SECONDS)
 
         del loader
         return "Index built successfully"

@@ -71,8 +71,7 @@ const ConfirmRecloneModal = ({ repoName, onConfirm, onCancel }) => (
         }}
       >
         This will re-fetch and re-index the repository from scratch. It can take
-        up to <span style={{ color: "#fcd34d" }}>2 minutes</span>. The existing
-        index will be replaced.
+        time depending on the repo size. Please don't close this tab.
       </p>
 
       <div style={{ display: "flex", gap: "0.75rem" }}>
