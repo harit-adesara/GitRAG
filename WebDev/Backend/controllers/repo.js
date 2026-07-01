@@ -69,7 +69,7 @@ export const createRepo = asyncHandler(async (req, res) => {
     console.log("start create");
     await axios.post("https://gitrag-1.onrender.com/initialize-repo", {
       repo_url: url,
-      mongo_id: repo._id,
+      mongo_id: repo._id.toString(),
     });
     console.log("end create");
 
@@ -190,7 +190,7 @@ export const reclone = asyncHandler(async (req, res) => {
 
     const result = await axios.post("https://gitrag-1.onrender.com/pull-repo", {
       repo_url: repo.url,
-      mongo_id: repo._id,
+      mongo_id: repo._id.toString(),
     });
 
     console.log("end reclone");
@@ -224,19 +224,19 @@ export const deleteRepo = asyncHandler(async (req, res) => {
       throw new ApiError(404, "Repo is already deleted");
     }
 
-    updated.isDeleted = true;
-    await updated.save({ validateBeforeSave: true });
-
     console.log("start delete");
 
     const result = await axios.post(
       "https://gitrag-1.onrender.com/delete-repo",
       {
-        mongo_id: updated._id,
+        mongo_id: updated._id.toString(),
       },
     );
 
     console.log("end delete");
+
+    updated.isDeleted = true;
+    await updated.save({ validateBeforeSave: true });
 
     return res.status(200).json(new ApiResponse(200, {}, "Repo Deleted"));
   } catch (error) {

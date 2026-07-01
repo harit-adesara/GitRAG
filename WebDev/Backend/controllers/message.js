@@ -24,7 +24,7 @@ export const sendMsg = asyncHandler(async (req, res) => {
 
     console.log("start send msg");
     const result = await axios.post("https://gitrag-1.onrender.com/message", {
-      mongo_id: repoId,
+      mongo_id: repoId.toString(),
       query: content,
       history: history,
     });
