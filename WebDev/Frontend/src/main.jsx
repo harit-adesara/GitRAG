@@ -37,7 +37,7 @@ const router = createBrowserRouter(
           <Route path="repos" element={<MyRepos />} />
           <Route path="profile" element={<Profile />} />
           <Route path="chat/:repoId" element={<ChatList />} />
-          <Route path="chat-page/:chatId" element={<ChatPage />} />
+          <Route path="chat-page/:chatId/:repoId" element={<ChatPage />} />
         </Route>
       </Route>
       <Route element={<PublicRoute />}>

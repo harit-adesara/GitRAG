@@ -4,11 +4,10 @@ import MessageContent from "./MessageContent.jsx";
 import axiosInstance from "../axios.js";
 
 export default function ChatPage() {
-  const { chatId } = useParams();
+  const { chatId, repoId } = useParams();
 
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
-  const [repoId, setRepoId] = useState("");
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState("");
@@ -37,14 +36,6 @@ export default function ChatPage() {
       );
 
       setMessages(res.data?.data?.messages ?? []);
-
-      if (res.data?.data?.messages?.length > 0) {
-        const firstMessage = res.data.data.messages[0];
-
-        if (firstMessage.repoId) {
-          setRepoId(firstMessage.repoId);
-        }
-      }
     } catch (err) {
       setError("Failed to load messages");
     } finally {

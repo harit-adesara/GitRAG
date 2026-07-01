@@ -49,7 +49,7 @@ export default function ChatList() {
       const chat = res.data?.data?.chat;
 
       if (chat) {
-        navigate(`/layout/chat-page/${chat._id}`);
+        navigate(`/layout/chat-page/${chat._id}/${repoId}`);
       }
     } catch (err) {
       setError("Failed to create chat");
@@ -118,7 +118,9 @@ export default function ChatList() {
           {chats.map((chat) => (
             <div
               key={chat._id}
-              onClick={() => navigate(`/layout/chat-page/${chat._id}`)}
+              onClick={() =>
+                navigate(`/layout/chat-page/${chat._id}/${repoId}`)
+              }
               className="
                 cursor-pointer
                 bg-[#0f0f17]
