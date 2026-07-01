@@ -33,14 +33,14 @@ GitRAG is a full-stack Retrieval-Augmented Generation (RAG) platform that turns 
                                     │                             │
                                     ▼                             ▼
                              ┌────────────┐              ┌────────────────┐
-                             │  MongoDB   │              │  Qdrant Vector  │
-                             │ (metadata, │              │     Store       │
-                             │  chat logs)│              └────────┬────────┘
+                             │  MongoDB   │              │  Qdrant Vector │
+                             │ (metadata, │              │     Store      │
+                             │  chat logs)│              └────────┬───────┘
                              └────────────┘                       │
                                                                    ▼
                                                           ┌──────────────────┐
-                                                          │ Groq (LLaMA 3.1)  │
-                                                          │ + Cohere Rerank   │
+                                                          │      Gemini      │
+                                                          │ + Cohere Rerank  │
                                                           └──────────────────┘
 ```
 
@@ -49,7 +49,7 @@ GitRAG is a full-stack Retrieval-Augmented Generation (RAG) platform that turns 
 1. User submits a GitHub repo URL.
 2. Node backend persists repo metadata in MongoDB and forwards the request to the FastAPI service.
 3. FastAPI clones the repo, chunks the source files, generates embeddings, and stores them in Qdrant.
-4. On a user query, the pipeline retrieves the most relevant chunks, reranks them with Cohere, and passes them to Groq's LLaMA-3 model.
+4. On a user query, the pipeline retrieves the most relevant chunks, reranks them with Cohere, and passes them to Gemini model.
 5. The model returns a grounded, context-aware answer back through the chain to the user.
 
 ---
@@ -62,7 +62,7 @@ GitRAG is a full-stack Retrieval-Augmented Generation (RAG) platform that turns 
 | **Backend**      | Node.js, Express.js, MongoDB + Mongoose, JWT Auth |
 | **RAG Service**  | FastAPI, LangChain, Python                        |
 | **Vector Store** | Qdrant                                            |
-| **LLM**          | Groq (LLaMA 3.1)                                  |
+| **LLM**          | Gemini                                            |
 | **Reranking**    | Cohere                                            |
 | **Deployment**   | Vercel (frontend), Render (backend + RAG service) |
 
@@ -109,7 +109,7 @@ Qdrant Vector Storage
 User Query ──▶ Similarity Search ──▶ Cohere Reranking
                                           │
                                           ▼
-                                 Groq LLaMA-3 Generation
+                                     Gemini model
                                           │
                                           ▼
                                     Final Answer
@@ -141,7 +141,7 @@ FASTAPI_URL=https://gitrag-1.onrender.com
 
 ```env
 COHERE_API_KEY=
-GROQ_API_KEY=
+GEMINI_API_KEY=
 QDRANT_URL=
 ```
 
