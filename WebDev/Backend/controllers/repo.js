@@ -7,91 +7,102 @@ import mongoose, { mongo } from "mongoose";
 import axios from "axios";
 
 export const createRepo = asyncHandler(async (req, res) => {
-  const session = await mongoose.startSession();
+  const { name, url } = req.body;
 
+  if (!name || !url || !url.startsWith("https://github.com/")) {
+    throw new ApiError(400, "Name and valid URL required");
+  }
+
+  const session = await mongoose.startSession();
+  let repo,
+    chat,
+    isRevived = false;
+
+  // ── PHASE 1: MongoDB transaction ──────────────────────────────
   try {
     session.startTransaction();
 
-    const { name, url } = req.body;
+    repo = await Repo.findOne({ url, userId: req.user._id }).session(session);
 
-    if (!name || !url || !url.startsWith("https://github.com/")) {
-      throw new ApiError(400, "Name and valid URL required");
-    }
-
-    let repo = await Repo.findOne({
-      url,
-      userId: req.user._id,
-    }).session(session);
-
-    let chat;
-
-    // CASE 1: Repo exists
     if (repo) {
-      // revive if deleted
       if (repo.isDeleted) {
         repo.isDeleted = false;
         repo.name = name;
         await repo.save({ session });
+        isRevived = true;
       }
+      // repo exists and is active — nothing to do
     } else {
-      // CASE 2: new repo
-      repo = await Repo.create(
-        [
-          {
-            name,
-            url,
-            userId: req.user._id,
-            isDeleted: false,
-          },
-        ],
+      const repoArr = await Repo.create(
+        [{ name, url, userId: req.user._id, isDeleted: false }],
         { session },
       );
+      repo = repoArr[0];
 
-      repo = repo[0];
-
-      chat = await Chat.create(
-        [
-          {
-            repoId: repo._id,
-            userId: req.user._id,
-          },
-        ],
+      const chatArr = await Chat.create(
+        [{ repoId: repo._id, userId: req.user._id }],
         { session },
       );
-
-      chat = chat[0];
+      chat = chatArr[0];
     }
 
     await session.commitTransaction();
+  } catch (error) {
+    // safe to abort — we never committed
+    if (session.inTransaction()) {
+      await session.abortTransaction();
+    }
+    throw new ApiError(
+      error.statusCode || 500,
+      error.message || "DB error creating repo",
+    );
+  } finally {
+    // always runs, always once
     session.endSession();
+  }
 
-    // IMPORTANT: call fastapi AFTER commit
-    console.log("start create");
-    await axios.post("https://gitrag-1.onrender.com/initialize-repo", {
+  // ── PHASE 2: FastAPI call (outside transaction) ───────────────
+  try {
+    await axios.post(`https://gitrag-1.onrender.com/initialize-repo`, {
       repo_url: url,
       mongo_id: repo._id.toString(),
     });
-    console.log("end create");
-
-    return res.status(200).json(
-      new ApiResponse(
-        200,
-        {
-          repo,
-          chat: chat || null,
-        },
-        repo.isDeleted ? "Repo revived" : "Repo created",
-      ),
-    );
   } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
+    // log real FastAPI error
+    console.error("FastAPI /initialize-repo failed:");
+    console.error("Status:", error.response?.status);
+    console.error("Detail:", error.response?.data);
+
+    // manually undo the committed DB write
+    try {
+      if (chat) {
+        await Chat.findByIdAndDelete(chat._id);
+        await Repo.findByIdAndDelete(repo._id);
+      } else if (isRevived) {
+        repo.isDeleted = true;
+        await repo.save();
+      }
+    } catch (rollbackError) {
+      // rollback failed — log it so you can clean up manually
+      console.error("Manual rollback failed:", rollbackError.message);
+    }
 
     throw new ApiError(
-      error.statusCode || 500,
-      error.message || "Error creating repo",
+      502,
+      error.response?.data?.detail ||
+        `Indexing service error: ${error.message}`,
     );
   }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { repo, chat: chat || null },
+        isRevived ? "Repo revived" : "Repo created",
+      ),
+    );
 });
 
 export const getRepos = asyncHandler(async (req, res) => {
