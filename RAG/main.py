@@ -1,143 +1,3 @@
-# from qdrant_client.models import Filter, FieldCondition, MatchValue
-# from langchain_groq import ChatGroq
-# from dotenv import load_dotenv
-# from config.qdrant import client,vectorstore
-
-# load_dotenv()
-
-# from pydantic import BaseModel
-
-# from fastapi import FastAPI,HTTPException
-# from model1 import build_rag_index
-
-# app = FastAPI()
-
-# llm=ChatGroq(model="llama-3.1-8b-instant")
-
-
-# class MessageRequest(BaseModel):
-#     query: str
-#     mongo_id: str
-
-# class PullRepoRequest(BaseModel):
-#     repo_url: str
-#     mongo_id: str
-
-# class RepoRequest(BaseModel):
-#     repo_url: str
-#     mongo_id: str
-
-# @app.post("/initialize-repo")
-# def initialize_repo(payload: RepoRequest):
-
-#     try:
-#         result = build_rag_index(
-#             repo_url=payload.repo_url,
-#             MongoId=payload.mongo_id
-#         )
-
-#         return {"status": "success", "message": result}
-
-#     except Exception as e:
-#         raise HTTPException(
-#             status_code=500,
-#             detail=str(e)
-#         )
-
-# @app.post("/pull-repo")
-# def pull_repo(payload: PullRepoRequest):
-#     try:
-
-#         client.delete(
-#             collection_name="github_rag",
-#             points_selector=Filter(
-#                 must=[
-#                     FieldCondition(
-#                         key="metadata.MongoId",
-#                         match=MatchValue(value=payload.mongo_id)
-#                     )
-#                 ]
-#             )
-#         )
-
-#         result = build_rag_index(
-#             repo_url=payload.repo_url,
-#             MongoId=payload.mongo_id
-#         )
-        
-#         return {"message": "Pulled successfully"}
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
-
-
-
-# @app.post("/message")
-# def message(payload: MessageRequest):
-#     try:
-
-#         results = vectorstore.similarity_search(
-#             payload.query,
-#             k=10,
-#             filter=Filter(
-#                 must=[
-#                     FieldCondition(
-#                         key="metadata.MongoId",
-#                         match=MatchValue(value=payload.mongo_id)
-#                     )
-#                 ]
-#             )
-#         )
-
-#         # base_retriever = vectorstore.as_retriever(
-#         #     search_type="mmr",
-#         #     search_kwargs={
-#         #         "k": 10,
-#         #         "fetch_k": 30,
-#         #         "lambda_mult": 0.5,
-#         #         "filter": Filter(
-#         #             must=[
-#         #                 FieldCondition(
-#         #                     key="metadata.MongoId",
-#         #                     match=MatchValue(value=payload.mongo_id)
-#         #                 )
-#         #             ]
-#         #         )
-#         #     }
-#         # )
-
-#         # retriever = MultiQueryRetriever.from_llm(
-#         #     retriever=base_retriever,
-#         #     llm=llm
-#         # )
-
-#         # docs = retriever.get_relevant_documents(payload.query)
-
-#         context = "\n\n".join(
-#             doc.page_content
-#             for doc in results
-#         )
-
-#         prompt =f"""
-#         Answer using only the repository context.
-
-#         Context:
-#         {context}
-
-#         Question:
-#         {payload.query}
-#         """
-
-#         response = llm.invoke(prompt)
-
-#         return {
-#             "status": "success",
-#             "query": payload.query,
-#             "results": response.content
-#         }
-
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
-
 from qdrant_client.models import Filter, FieldCondition, MatchValue
 from langchain_groq import ChatGroq
 from langchain_classic.retrievers.document_compressors.cohere_rerank import CohereRerank
@@ -146,6 +6,7 @@ from typing import List, Dict
 from dotenv import load_dotenv
 import os
 from config.qdrant import client, vectorstore
+from langchain_google_genai import ChatGoogleGenerativeAI
 
 load_dotenv()
 
@@ -163,7 +24,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-llm = ChatGroq(model="llama-3.1-8b-instant")
+llm = ChatGoogleGenerativeAI(
+    model="gemini-2.5-flash",
+    google_api_key=os.getenv("GEMINI_API_KEY"))
+
 reranker = CohereRerank(cohere_api_key=os.getenv("COHERE_API_KEY"), top_n=8, model="rerank-v3.5")
 
 class DeleteRepo(BaseModel):
