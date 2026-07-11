@@ -25,7 +25,7 @@ app.add_middleware(
 )
 
 llm = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash",
+    model="gemini-3.1-flash-lite",
     google_api_key=os.getenv("GEMINI_API_KEY"))
 
 reranker = CohereRerank(cohere_api_key=os.getenv("COHERE_API_KEY"), top_n=8, model="rerank-v3.5")
