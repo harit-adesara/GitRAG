@@ -21,6 +21,11 @@ export const sendMsg = asyncHandler(async (req, res) => {
       session_id: chatId,
     });
 
+    const rawResult = result.data.results;
+    const aiText = Array.isArray(rawResult)
+      ? rawResult.map((block) => block.text ?? "").join("\n")
+      : rawResult;
+
     const userMsg = await Message.create({
       userId: req.user._id,
       chatId,
@@ -32,12 +37,12 @@ export const sendMsg = asyncHandler(async (req, res) => {
       userId: req.user._id,
       chatId,
       role: "ai",
-      content: result.data.results,
+      content: aiText,
     });
 
     return res.status(200).json(
       new ApiResponse(200, {
-        response: result.data.results,
+        response: aiText,
       }),
     );
   } catch (error) {
