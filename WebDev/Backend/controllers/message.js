@@ -15,23 +15,12 @@ export const sendMsg = asyncHandler(async (req, res) => {
       throw new ApiError(400, "Content is required");
     }
 
-    const history = await Message.find({ chatId })
-      .sort({ createdAt: 1 })
-      .limit(10)
-      .select("role content");
-
-    // call Python RAG service
-
-    console.log("start send msg");
     const result = await axios.post("https://gitrag-1.onrender.com/message", {
       mongo_id: repoId.toString(),
       query: content,
-      history: history,
+      session_id: chatId,
     });
 
-    console.log("end send msg");
-
-    // save BOTH messages properly
     const userMsg = await Message.create({
       userId: req.user._id,
       chatId,

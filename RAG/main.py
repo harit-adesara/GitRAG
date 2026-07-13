@@ -2,11 +2,12 @@ from qdrant_client.models import Filter, FieldCondition, MatchValue
 from langchain_groq import ChatGroq
 from langchain_classic.retrievers.document_compressors.cohere_rerank import CohereRerank
 from fastapi.middleware.cors import CORSMiddleware 
-from typing import List, Dict
 from dotenv import load_dotenv
 import os
 from config.qdrant import client, vectorstore
 from langchain_google_genai import ChatGoogleGenerativeAI
+from chat import graph
+from langchain_core.messages import HumanMessage
 
 load_dotenv()
 
@@ -28,7 +29,7 @@ llm = ChatGoogleGenerativeAI(
     model="gemini-3.1-flash-lite",
     google_api_key=os.getenv("GEMINI_API_KEY"))
 
-reranker = CohereRerank(cohere_api_key=os.getenv("COHERE_API_KEY"), top_n=8, model="rerank-v3.5")
+reranker = CohereRerank(cohere_api_key=os.getenv("COHERE_API_KEY"), top_n=7, model="rerank-v3.5")
 
 class DeleteRepo(BaseModel):
     mongo_id:str
@@ -36,7 +37,7 @@ class DeleteRepo(BaseModel):
 class MessageRequest(BaseModel):
     query: str
     mongo_id: str
-    history:List[Dict[str, str]]=[]
+    session_id:str
 
 class PullRepoRequest(BaseModel):
     repo_url: str
@@ -85,7 +86,6 @@ def pull_repo(payload: PullRepoRequest):
 @app.post("/message")
 def message(payload: MessageRequest):
     try:
-        # Step 1: broad similarity search — cast wide net
         docs = vectorstore.similarity_search(
             payload.query,
             k=20,
@@ -99,53 +99,33 @@ def message(payload: MessageRequest):
             )
         )
 
-        # Step 2: rerank — score all 15 against query, keep top 3
         reranked_docs = reranker.compress_documents(docs, payload.query)
 
-        # Step 3: build context from top 3 reranked docs
         context = "\n\n".join(
             f"FILE: {doc.metadata.get('source', 'unknown')}\n{doc.page_content}"
             for doc in reranked_docs
         )
 
-        print(payload.history)
-        print(len(payload.history))
+        config = {
+            "configurable": {
+                "thread_id": payload.session_id
+            }
+        }
 
-        formatted_history = "\n".join(
-            f"{msg['role'].upper()}: {msg['content']}"
-            for msg in payload.history
+        result = graph.invoke(
+            {
+                "messages": [
+                    HumanMessage(content=payload.query)
+                ],
+                "context": context
+            },
+            config=config
         )
-
-        
-        prompt = f"""
-            You are a senior codebase assistant. Answer concisely.
-
-            RULES:
-            - Use ONLY the provided repository files
-            - Keep answers under 300 words unless the user asks for detail
-            - Give all the answer based on FILES and CHAT HISTORY do not give any answer yourself and do not give any random answer
-            - Use short inline code (backticks) only for function/variable names
-            - If nothing relevant exists, say "Not found in repository"
-            -If you only have partial code (e.g. a function is cut off), explicitly say 
-            "I only have a partial snippet of this — the chunk may be incomplete" 
-            instead of silently omitting it
-
-            FILES:
-            {context}
-
-            CHAT HISTORY:
-            {formatted_history}
-
-            QUESTION:
-            {payload.query}
-            """
-
-        response = llm.invoke(prompt)
 
         return {
             "status": "success",
             "query": payload.query,
-            "results": response.content
+            "results": result["messages"][-1].content
         }
 
     except Exception as e:

@@ -33,7 +33,7 @@ axiosInstance.interceptors.response.use(
 
       try {
         await axiosInstance.post(
-          "https://real-time-code-editor-vercodex.onrender.com/vercodex/refresh-token",
+          "https://gitrag-awh4.onrender.com/gitrag/refresh-token",
           {},
           {
             withCredentials: true,
