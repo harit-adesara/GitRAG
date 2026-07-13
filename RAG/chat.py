@@ -15,7 +15,7 @@ load_dotenv()
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
-DB_URI = os.getenv("DATABASE_URL")
+DB_URI = os.getenv("DB_URI")
 
 pool = ConnectionPool(
     conninfo=DB_URI,
