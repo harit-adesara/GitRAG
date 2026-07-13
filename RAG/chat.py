@@ -16,9 +16,7 @@ load_dotenv()
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
-DB_PASSWORD = os.getenv("DB_PASSWORD") 
-
-DB_URI=f'postgresql://postgres.yrzdgzmtubwftnurvwwo:{quote_plus(DB_PASSWORD)}@aws-0-<region>.pooler.supabase.com:5432/postgres'
+DB_URI=os.getenv("DB_URI")
 
 pool = ConnectionPool(
     conninfo=DB_URI,
