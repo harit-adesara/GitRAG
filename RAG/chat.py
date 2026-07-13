@@ -8,15 +8,23 @@ from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
 from langgraph.checkpoint.postgres import PostgresSaver
 from langgraph.graph.message import RemoveMessage
+from psycopg_pool import ConnectionPool
 
 
 load_dotenv()
 
-DB_URI = os.getenv("DATABASE_URL")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
+DB_URI = os.getenv("DATABASE_URL")
 
-checkpointer = PostgresSaver.from_conn_string(DB_URI)
+pool = ConnectionPool(
+    conninfo=DB_URI,
+    max_size=20,
+    kwargs={"autocommit": True, "prepare_threshold": 0},
+    open=True,
+)
+
+checkpointer = PostgresSaver(pool)
 checkpointer.setup()
 
 
