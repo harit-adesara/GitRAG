@@ -9,13 +9,17 @@ from langgraph.graph.message import add_messages
 from langgraph.checkpoint.postgres import PostgresSaver
 from langgraph.graph.message import RemoveMessage
 from psycopg_pool import ConnectionPool
+from urllib.parse import quote_plus
 
 
 load_dotenv()
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
-DB_URI = os.getenv("DB_URI")
+DB_PASSWORD = os.getenv("DB_PASSWORD") 
+DB_HOST = os.getenv("DB_HOST")    
+
+DB_URI = f"postgresql://postgres:{quote_plus(DB_PASSWORD)}@{DB_HOST}:5432/postgres"
 
 pool = ConnectionPool(
     conninfo=DB_URI,
