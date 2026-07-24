@@ -9,9 +9,11 @@ from langgraph.graph.message import add_messages
 from langgraph.checkpoint.postgres import PostgresSaver
 from langgraph.graph.message import RemoveMessage
 from psycopg_pool import ConnectionPool
+from langsmith import traceable
 
 
 load_dotenv()
+
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
@@ -46,6 +48,7 @@ from guadrails.routing import route_after_input
 MAX_MESSAGES = 10
 SUMMARY_THRESHOLD = 20
 
+traceable(name="Chatbot")
 def chatbot(state: State):
     messages = state["messages"]
     summary = state.get("summary", "")

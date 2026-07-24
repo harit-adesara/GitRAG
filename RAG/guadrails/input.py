@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from typing import Literal
 from chat import State
 from langchain_core.messages import AIMessage
+from langsmith import traceable
 
 guardrail_llm = ChatGoogleGenerativeAI(
     model="gemini-3.1-flash-lite",
@@ -19,6 +20,7 @@ class InputSafetyResult(BaseModel):
 
 input_checker =  guardrail_llm.with_structured_output(InputSafetyResult)
 
+@traceable(name="Input Guadrail")
 def input_guardrail(
     state: State
 ):
