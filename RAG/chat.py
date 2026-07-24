@@ -45,10 +45,8 @@ from guadrails.input import input_guardrail
 from guadrails.output import output_guardrail
 from guadrails.routing import route_after_input
 
-MAX_MESSAGES = 10
-SUMMARY_THRESHOLD = 20
+MAX_MESSAGES = 4 
 
-traceable(name="Chatbot")
 def chatbot(state: State):
     messages = state["messages"]
     summary = state.get("summary", "")
@@ -56,60 +54,52 @@ def chatbot(state: State):
 
     remove_messages = []
 
-    if len(messages) > SUMMARY_THRESHOLD:
-
+    if len(messages) > MAX_MESSAGES:
         old_messages = messages[:-MAX_MESSAGES]
         recent_messages = messages[-MAX_MESSAGES:]
 
+        conversation_text = "\n".join(
+            f"{m.type}: {m.content}" for m in old_messages
+        )
+
         summary_prompt = f"""
 Current Summary:
-{summary}
+{summary if summary else "(none yet)"}
 
-Update the summary using the following conversation.
+Update the summary using the following new conversation turns.
+Merge them into the existing summary — don't just append, produce
+one coherent, updated summary.
 
-Conversation:
-{old_messages}
+New Conversation:
+{conversation_text}
 
-Return ONLY the updated summary.
+Return ONLY the updated summary text, nothing else.
 """
-
         summary = llm.invoke(summary_prompt).content
-
-        remove_messages = [
-            RemoveMessage(id=m.id)
-            for m in old_messages
-        ]
-
+        remove_messages = [RemoveMessage(id=m.id) for m in old_messages]
     else:
         recent_messages = messages
 
     context = []
 
     if summary:
-        context.append(
-            SystemMessage(
-                content=f"""
-    Conversation Summary:
+        context.append(SystemMessage(content=f"""
+Conversation Summary (background only):
+{summary}
+"""))
 
-    {summary}
-    """
-            )
-        )
+    context.append(SystemMessage(content=f"""
+Repository Context (for answering the CURRENT question):
 
-    context.append(
-        SystemMessage(
-            content=f"""
-    Repository Context:
+{rag_context}
 
-    {rag_context}
-
-    Answer ONLY using this repository context.
-
-    If the answer isn't in the repository,
-    say "Not found in repository."
-    """
-        )
-    )
+Instructions:
+- Treat the user's most recent message as the question to answer right now.
+- Answer using ONLY the repository context above.
+- If the current question is on a different topic than earlier messages,
+  IGNORE the earlier topic completely.
+- If the answer isn't in the repository context, say "Not found in repository."
+"""))
 
     context.extend(recent_messages)
 
