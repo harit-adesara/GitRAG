@@ -183,16 +183,6 @@ uvicorn main:app --reload
 
 ---
 
-## 📈 Roadmap
-
-- [ ] Role-based access control
-- [ ] Repository analytics dashboard
-- [ ] Streaming LLM responses
-- [ ] Multi-repo chat context
-- [ ] Persistent chat memory with LangGraph
-
----
-
 ## 👨‍💻 Author
 
 **Harit Adesara**
