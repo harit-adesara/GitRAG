@@ -9,7 +9,6 @@ from langgraph.graph.message import add_messages
 from langgraph.checkpoint.postgres import PostgresSaver
 from langgraph.graph.message import RemoveMessage
 from psycopg_pool import ConnectionPool
-from urllib.parse import quote_plus
 
 
 load_dotenv()
@@ -37,6 +36,12 @@ class State(TypedDict):
     messages: Annotated[list[BaseMessage], add_messages]
     summary: str
     context: str
+    input_blocked: bool
+    output_blocked: bool
+
+from guadrails.input import input_guardrail
+from guadrails.output import output_guardrail
+from guadrails.routing import route_after_input
 
 MAX_MESSAGES = 10
 SUMMARY_THRESHOLD = 20
@@ -115,22 +120,17 @@ Return ONLY the updated summary.
 builder = StateGraph(State)
 
 builder.add_node("chatbot", chatbot)
+builder.add_node("input_checker",input_guardrail)
+builder.add_node("output_checker",output_guardrail)
 
-builder.add_edge(START, "chatbot")
-builder.add_edge("chatbot", END)
+builder.add_edge(START, "input_checker")
+builder.add_conditional_edges("input_checker",route_after_input,{
+    "continue":"chatbot",
+    "blocked":END
+})
+builder.add_edge("chatbot","output_checker")
+builder.add_edge("output_checker",END)
 
-graph = builder.compile(
-    checkpointer=checkpointer
-)
-
-
-
-builder = StateGraph(State)
-
-builder.add_node("chatbot", chatbot)
-
-builder.add_edge(START, "chatbot")
-builder.add_edge("chatbot", END)
 
 graph = builder.compile(
     checkpointer=checkpointer
